@@ -1,24 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultimate Tic Tac Toe</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    background: radial-gradient(circle at top, #243b65, #090d1c 75%);
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 480px;
+    padding: 28px 22px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 25px;
+    box-shadow: 0 15px 60px #0008;
+    text-align: center;
+}
+
+h1 {
+    font-size: 32px;
+    color: #00e5ff;
+    letter-spacing: 3px;
+    text-shadow: 0 0 20px #00e5ff80;
+}
+
+.subtitle {
+    color: #aab8d5;
+    margin: 10px 0 24px;
+}
+
+.mode {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 22px;
+}
+
+.mode button {
+    flex: 1;
+    padding: 12px 5px;
+    border-radius: 10px;
+    border: 1px solid #52658d;
+    background: #172440;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.mode button.active {
+    background: #00cfe8;
+    color: #081323;
+    border-color: #00e5ff;
+}
+
+.scores {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.score-box {
+    background: #172440;
+    padding: 15px;
+    border-radius: 14px;
+    border: 1px solid #34496e;
+}
+
+.score-box span {
+    display: block;
+    font-size: 14px;
+    color: #aab8d5;
+}
+
+.score-box strong {
+    display: block;
+    margin-top: 7px;
+    font-size: 29px;
+}
+
+.x-score { color: #00e5ff; }
+.o-score { color: #ffb84d; }
+
+.status {
+    color: #ffe27a;
+    font-size: 19px;
+    margin-bottom: 20px;
+    min-height: 24px;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-width: 340px;
+    margin: auto;
+}
+
+.cell {
+    aspect-ratio: 1;
+    border-radius: 14px;
+    border: 1px solid #41567e;
+    background: #172440;
+    color: white;
+    font-size: clamp(38px, 10vw, 58px);
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.cell:hover:not(:disabled) {
+    background: #263c63;
+    border-color: #00e5ff;
+    transform: scale(1.04);
+}
+
+.cell:disabled {
+    cursor: default;
+    opacity: 1;
+}
+
+.cell.x { color: #00e5ff; }
+.cell.o { color: #ffb84d; }
+
+.cell.win {
+    background: #17634f;
+    border-color: #00ffae;
+    animation: glow 0.8s infinite alternate;
+}
+
+@keyframes glow {
+    from { box-shadow: 0 0 5px #00ffae; }
+    to { box-shadow: 0 0 22px #00ffae; }
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.controls button {
+    flex: 1;
+    padding: 13px 6px;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.controls button:hover {
+    transform: translateY(-3px);
+}
+
+.new-game {
+    background: #00e5ff;
+    color: #071322;
+}
+
+.reset {
+    background: #ffb84d;
+    color: #251506;
+}
+
+.footer {
+    margin-top: 22px;
+    color: #8192b4;
+    font-size: 12px;
+}
+
+#celebration {
+    color: #00ffae;
+    font-weight: bold;
+    margin-top: 14px;
+    min-height: 24px;
+}
+
+@media(max-width: 380px) {
+    h1 { font-size: 25px; }
+    .container { padding: 22px 14px; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>TIC TAC TOE</h1>
+    <p class="subtitle">The Ultimate Battle of X and O</p>
+
+    <div class="mode">
+        <button id="twoPlayer" class="active" onclick="setMode(1)">
+            2 Players
+        </button>
+        <button id="computer" onclick="setMode(2)">
+            Vs Computer
+        </button>
+    </div>
+
+    <div class="scores">
+        <div class="score-box">
+            <span>PLAYER X</span>
+            <strong class="x-score" id="scoreX">0</strong>
+        </div>
+
+        <div class="score-box">
+            <span id="playerOLabel">PLAYER O</span>
+            <strong class="o-score" id="scoreO">0</strong>
+        </div>
+    </div>
+
+    <div class="status" id="status">Loading game...</div>
+
+    <div class="board">
+        <button class="cell" onclick="play(0)"></button>
+        <button class="cell" onclick="play(1)"></button>
+        <button class="cell" onclick="play(2)"></button>
+        <button class="cell" onclick="play(3)"></button>
+        <button class="cell" onclick="play(4)"></button>
+        <button class="cell" onclick="play(5)"></button>
+        <button class="cell" onclick="play(6)"></button>
+        <button class="cell" onclick="play(7)"></button>
+        <button class="cell" onclick="play(8)"></button>
+    </div>
+
+    <div id="celebration"></div>
+
+    <div class="controls">
+        <button class="new-game" onclick="newGame()">
+            ↻ New Game
+        </button>
+
+        <button class="reset" onclick="resetScores()">
+            Reset Score
+        </button>
+    </div>
+
+    <p class="footer">
+        POWERED BY C + HTML + WEBASSEMBLY
+    </p>
+
+</div>
 
 <script>
 let mode = 1;
 let gameFinished = false;
 let computerThinking = false;
-let computerTimer = null;
 
 const cells = document.querySelectorAll(".cell");
 const statusText = document.getElementById("status");
 const celebration = document.getElementById("celebration");
 
 function callC(name, returnType = "number", args = [], types = []) {
-    if (!Module || !Module.calledRun) {
-        throw new Error("C game module is not ready.");
-    }
-
     return Module.ccall(name, returnType, types, args);
 }
 
 function startGame() {
-    callC("initialize_game", null);
+    callC("initialize_game");
     gameFinished = false;
     computerThinking = false;
     refreshBoard();
@@ -51,10 +307,8 @@ function refreshBoard() {
 function updateStatus(result) {
     if (result === 1 || result === 2) {
         gameFinished = true;
-
         statusText.textContent =
             "🎉 PLAYER " + (result === 1 ? "X" : "O") + " WINS!";
-
         celebration.textContent = "🏆 Amazing victory!";
 
         refreshBoard();
@@ -109,45 +363,40 @@ function play(position) {
 
     if (!success) return;
 
-    const result = callC("check_winner");
+    let result = callC("check_winner");
 
     if (result !== 0) {
         updateStatus(result);
         return;
     }
 
-    callC("switch_player", null);
+    callC("switch_player");
 
     if (mode === 2) {
         computerThinking = true;
         refreshBoard();
-
         statusText.textContent = "🤖 COMPUTER IS THINKING...";
 
-        computerTimer = setTimeout(computerMove, 450);
+        setTimeout(computerMove, 450);
     } else {
         updateStatus(0);
     }
 }
 
 function computerMove() {
-    computerTimer = null;
-
-    if (gameFinished || mode !== 2 || !computerThinking)
-        return;
+    if (gameFinished || mode !== 2) return;
 
     const position = callC("computer_move");
 
     if (position < 0) {
         computerThinking = false;
-        updateStatus(0);
         return;
     }
 
     const result = callC("check_winner");
 
     if (result === 0) {
-        callC("switch_player", null);
+        callC("switch_player");
     }
 
     computerThinking = false;
@@ -155,10 +404,7 @@ function computerMove() {
 }
 
 function newGame() {
-    clearTimeout(computerTimer);
-    computerTimer = null;
-
-    callC("reset_game", null);
+    callC("reset_game");
 
     gameFinished = false;
     computerThinking = false;
@@ -168,10 +414,7 @@ function newGame() {
 }
 
 function resetScores() {
-    clearTimeout(computerTimer);
-    computerTimer = null;
-
-    callC("reset_scores", null);
+    callC("reset_scores");
 
     gameFinished = false;
     computerThinking = false;
@@ -181,9 +424,6 @@ function resetScores() {
 }
 
 function setMode(value) {
-    clearTimeout(computerTimer);
-    computerTimer = null;
-
     mode = value;
 
     document.getElementById("twoPlayer")
@@ -199,26 +439,16 @@ function setMode(value) {
 }
 </script>
 
+<!-- Configure WebAssembly BEFORE loading game.js -->
 <script>
 var Module = {
     onRuntimeInitialized: function() {
-        try {
-            startGame();
-        } catch (error) {
-            document.getElementById("status").textContent =
-                "Game initialization failed. Check game files.";
-            console.error(error);
-        }
-    },
-
-    onAbort: function(reason) {
-        document.getElementById("status").textContent =
-            "Unable to load the C game.";
-        console.error("WebAssembly error:", reason);
+        startGame();
     }
 };
 </script>
 
 <script src="./game.js"></script>
+
 </body>
 </html>
